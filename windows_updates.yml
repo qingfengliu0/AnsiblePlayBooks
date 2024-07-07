@@ -1,0 +1,45 @@
+---
+- name: Manage Windows Updates
+  hosts: windows
+  connection: winrm
+  tasks:
+    - name: Install specified updates
+      ansible.windows.win_updates:
+        category_names:
+          - Application
+          - CriticalUpdates
+          - DefinitionUpdates
+          - SecurityUpdates
+          - Updates
+        reboot: yes
+        reboot_timeout: 450
+      register: update_result
+      ignore_errors: yes
+
+    - name: Log the update result
+      ansible.builtin.debug:
+        var: update_result
+
+    - name: Check for update failures
+      ansible.builtin.fail:
+        msg: "Updates failed, please check the logs."
+      when: update_result.failed > 0
+
+    - name: Reboot if required
+      ansible.windows.win_reboot:
+        when: update_result.reboot_required
+
+    - name: Verify updates post-reboot
+      ansible.windows.win_updates:
+        category_names:
+          - Application
+          - CriticalUpdates
+          - DefinitionUpdates
+          - SecurityUpdates
+          - Updates
+        state: searched
+      register: post_reboot_update_result
+
+    - name: Log post-reboot update status
+      ansible.builtin.debug:
+        var: post_reboot_update_result

@@ -1,0 +1,10 @@
+[windows]
+windows_server_1 ansible_host=192.168.1.10
+
+[windows:vars]
+ansible_connection=winrm
+ansible_user=ansibleAdmin
+ansible_password= "FengFeng!1296#"
+ansible_port=5985
+ansible_winrm_transport=basic
+ansible_winrm_server_cert_validation=ignore
